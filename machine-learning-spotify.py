@@ -32,14 +32,23 @@ print(df.isnull().sum()) # printa valores nulos
 linha("-=", 40)
 
 df.duplicated().sum() #verifica valores duplicados
-print("Valores Duplicados:")
+print("Linhas totalmente identicas:")
 print(df.duplicated().sum()) # printa valores duplicados
 
 #separador automatico
 linha("-=", 40)
 
 df["track_id"].duplicated() #verifica valores duplicados na coluna track_id
-
-
 print("IDs Duplicados:")
 print(df["track_id"].duplicated().sum()) # printa todos os IDs duplicados
+
+linha("-=", 40)
+
+print("Lista dos generos de musica:")
+print(sorted(df["track_genre"].unique())) # printa todos os generos de música  
+
+linha("-=", 40)
+
+generos = df[df["track_genre"].isin(["pop", "rock", "hip hop", "classical", "jazz", "country", "reggae", "blues", "forro", "indie", "indie-pop"])] #generos de musica desejados
+print("Generos de Musica Desejados:")
+print(sorted(generos["track_genre"].unique()))
