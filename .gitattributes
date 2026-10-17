@@ -1,2 +1,7 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+import pandas as pd
+# 1. Adivinhar o gênero da música pelo som
+#
+#Entrada: dançabilidade, energia, volume, tempo e as outras colunas numéricas.
+#Resposta a adivinhar: o gênero (ex.: metal, clássica, jazz).
+#Por que é bom: metal tem energia alta, clássica tem energia baixa, então 
+#o modelo tem padrões reais para aprender. Dá para checar facilmente se ele acertou.
