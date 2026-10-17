@@ -1,5 +1,7 @@
 import pandas as pd
 
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# Apenas lendo o dataset e verificando informações básicas
 df = pd.read_csv('dataset.csv', index_col=0)
 
 df.shape #linhas/colunas
