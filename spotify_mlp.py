@@ -8,7 +8,7 @@ import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import (
@@ -33,6 +33,8 @@ print("\nQuantidade por genero: \n", df["track_genre"].value_counts())
 # 2. PRÉ-PROCESSAMENTO
 ##############################################################################
 
+label_encoder = LabelEncoder()
+
 colunas = [
     "duration_ms",
     "danceability",
@@ -51,7 +53,9 @@ colunas = [
 
 # Valores de entrada:
 X = df[colunas].copy() #Features
-y = df["track_genre"].copy() #Coluna com saída esperada
+colum_genre = df["track_genre"].copy()
+y = label_encoder.fit_transform(colum_genre) #Coluna com saída esperada
+
 
 # Copiando dados e salvando em um arquivo .csv
 df_mlp = X.copy()
@@ -146,9 +150,9 @@ print(classification_report(
 ##############################################################################
 
 df_resultados = pd.DataFrame({
-    "genero_real": y_test.to_numpy(),
-    "genero_previsto": y_predict
+    "genero_real": label_encoder.inverse_transform(y_test), 
+    "genero_previsto": label_encoder.inverse_transform(y_predict)
 })
 
-df_resultados.to_csv("spotify_mlp_resultados.csv", index=False
-)
+df_resultados.to_csv("spotify_mlp_resultados.csv", index=False)
+
