@@ -1,50 +1,117 @@
-# Classificação de gênero musical com KNN e MLP
+# Classificador de gêneros musicais com KNN
 
-## 1. Ideia
+Projeto em Python para classificar gêneros musicais usando dados do Spotify e o algoritmo K-Nearest Neighbors (KNN).
 
-Usar um dataset de faixas do Spotify para treinar modelos de machine learning que descubram o **gênero de uma música** a partir de suas características de áudio, como dançabilidade, energia, volume e andamento.
+## Visão geral
 
-## 2. Dados
+Este projeto lê um dataset de músicas, realiza limpeza e pré-processamento dos dados, seleciona um subconjunto de gêneros mais representativos e treina um modelo de classificação para prever o gênero musical a partir de atributos de áudio.
 
-O projeto vai usar o arquivo `dataset.csv`, com cerca de 114 mil faixas musicais e 21 colunas. Cada linha é uma música, descrita por informações de identificação (nome, artista, álbum), características de áudio e o gênero a que pertence.
+O script principal é:
 
-Na primeira etapa, o objetivo será **compreender os dados**: ver quais colunas existem, como estão distribuídas, se há valores ausentes ou repetidos e se os gêneros realmente se diferenciam pelo som.
+- `machine-learning-spotify.py`
 
-## 3. Problema a ser resolvido
+## Objetivo
 
-- **Tipo:** classificação multiclasse
-- **Entrada:** características de áudio da faixa (`danceability`, `energy`, `loudness`, `speechiness`, `acousticness`, `instrumentalness`, `liveness`, `valence`, `tempo`)
-- **Saída:** gênero musical (`track_genre`)
+Identificar o gênero de uma faixa musical com base em características como:
 
-Como o dataset tem muitos gêneros, a ideia é trabalhar com um **subconjunto de poucos gêneros bem diferentes entre si** (por exemplo, clássica, metal, hip-hop, jazz e pop), para que a análise dos resultados seja clara.
+- `danceability`
+- `energy`
+- `loudness`
+- `speechiness`
+- `acousticness`
+- `instrumentalness`
+- `liveness`
+- `valence`
+- `tempo`
 
-## 4. Abordagem planejada
+## Dataset
 
-Serão usados dois modelos, comparados sobre os mesmos dados:
+O projeto usa o arquivo:
 
-- **KNN** (K-Nearest Neighbors)
-- **MLP** (Multi-Layer Perceptron)
+- `dataset.csv`
 
-Etapas previstas:
+Esse dataset contém uma coleção de faixas com informações como identificação da música, artista, álbum, atributos de áudio e o gênero (`track_genre`).
 
-1. Ler e explorar o dataset
-2. Escolher os gêneros que serão usados
-3. Limpar os dados (nulos, duplicatas e valores inconsistentes)
-4. Separar entrada e saída
-5. Dividir em treino e teste
-6. Normalizar as características, já que os dois modelos são sensíveis à escala
-7. Treinar o KNN e o MLP, ajustando seus parâmetros com validação cruzada
-8. Avaliar os dois modelos com acurácia, matriz de confusão, precisão, recall e F1
-9. Comparar os resultados e escrever as conclusões
+## Fluxo do projeto
 
-## 5. O que se espera descobrir
+O script executa as seguintes etapas:
 
-- Se as características de áudio são suficientes para distinguir os gêneros escolhidos
-- Qual dos dois modelos tem melhor desempenho
-- Quais gêneros são mais difíceis de separar
+1. Carrega o dataset
+2. Explora informações básicas do arquivo
+3. Verifica valores nulos e duplicados
+4. Analisa gêneros disponíveis no conjunto de dados
+5. Filtra um subconjunto de gêneros relevantes
+6. Limpa dados inconsistentes
+7. Remove colunas pouco úteis para a classificação
+8. Separa variáveis de entrada e alvo
+9. Divide os dados em treino e teste
+10. Normaliza as features
+11. Testa diferentes valores de `k` com validação cruzada
+12. Escolhe o melhor valor de `k`
+13. Treina o modelo KNN final
+14. Avalia a acurácia e o relatório de classificação
+15. Exibe a matriz de confusão
 
-## 6. Próximos passos
+## Tecnologias utilizadas
 
-- Definir os gêneros que serão usados
-- Iniciar a exploração dos dados
-- Montar o notebook com as etapas acima
+- Python
+- Pandas
+- Scikit-learn
+- Colorama
+- Biblioteca local `biblioteca_facilitar`
+
+## Requisitos
+
+Você precisará ter o Python instalado e as dependências do projeto disponíveis.
+
+### Instalação
+
+```bash
+pip install pandas scikit-learn colorama
+```
+
+## Como executar
+
+Na raiz do projeto, execute:
+
+```bash
+python machine-learning-spotify.py
+```
+
+O script imprime no terminal informações sobre o dataset, limpeza, treino e avaliação do modelo.
+
+## Estrutura do projeto
+
+```text
+Trab_IA_dataset_Spotify/
+├── README.md
+├── dataset.csv
+├── machine-learning-spotify.py
+├── biblioteca_facilitar/
+│   └── linha.py
+└── state/
+```
+
+## Resultado esperado
+
+Ao final da execução, o programa mostra:
+
+- contagem de músicas após limpeza
+- quantidade por gênero
+- métricas de avaliação do modelo
+- melhor valor de `k` encontrado
+- acurácia no conjunto de teste
+- relatório por gênero
+- matriz de confusão
+
+## Observações
+
+O projeto foi pensado como uma análise prática de classificação multiclasse em machine learning, com foco na comparação de desempenho entre diferentes valores de vizinhos para o algoritmo KNN.
+
+## Próximos passos possíveis
+
+- testar outros modelos, como Random Forest ou SVM
+- comparar com redes neurais
+- explorar melhor seleção de gêneros
+- melhorar a análise de métricas e visualização dos resultados
+- exportar os resultados em gráficos e relatórios
