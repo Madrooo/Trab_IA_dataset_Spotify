@@ -6,10 +6,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import make_pipeline
-#from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
 init(autoreset=True)
-
+#ESTE CODIGO É DO MODELO COM KNN (K-NEAREST NEIGHBORS) PARA CLASSIFICAR GENEROS MUSICAIS COM BASE EM ATRIBUTOS DE AUDIO
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Apenas lendo o dataset e verificando informações básicas
 print(Fore.GREEN + "Lendo o dataset...")
@@ -58,7 +59,7 @@ print(sorted(df["track_genre"].unique())) # printa todos os generos de música
 
 linha("-=", 40)
 
-generos = df[df["track_genre"].isin(["pop", "hip-hop", "classical", "jazz", "country", "reggae", "blues", "forro", "metal", "techno"])] #generos de musica desejados
+generos = df[df["track_genre"].isin(["hip-hop", "classical", "jazz", "country", "reggae", "forro", "metal", "techno"])] #generos de musica desejados
 print(Fore.BLUE + "Generos de Musica Desejados:")
 print(sorted(generos["track_genre"].unique())) # printa todos os generos de música desejados
 print(Fore.BLUE + "Total de generos encontrados:", generos["track_genre"].nunique()) # printa total de generos encontrados
@@ -71,6 +72,8 @@ df_cleaned = generos.dropna() #removendo valores nulos
 df_cleaned = df_cleaned.drop_duplicates(subset=["track_id","track_genre"]) #removendo valores duplicados, considerando apenas as colunas track_id e track_genre 
 df_cleaned = df_cleaned[df_cleaned["track_id"].duplicated() == False] #removendo valores duplicados na coluna track_id
 df_cleaned = df_cleaned[df_cleaned["tempo"] > 0] #removendo valores com tempo de música igual a 0
+df_cleaned = df_cleaned.drop_duplicates(subset=["track_name", "artists"]) #removendo versoes repetidas da mesma musica
+df_cleaned = df_cleaned.drop_duplicates(subset=["danceability", "energy", "loudness", "speechiness", "acousticness", "instrumentalness", "liveness", "valence", "tempo"]) #removendo faixas com audio identico
 
 print(Fore.BLUE + "Contagem de musicas apos o dataset limpo:")
 print(len(df_cleaned)) # printa o tamanho do dataset limpo
@@ -125,3 +128,42 @@ print(Fore.BLUE + "Desvio padrao das colunas do treino apos normalizar (precisa 
 print(X_train_scaled.std(axis=0)) # printa o desvio padrao das colunas do treino apos normalizarg
 
 linha("-=", 40)
+
+#testando varios valores de k com validacao cruzada (so no treino)
+
+melhor_k = 1
+melhor_score = 0
+
+for k in [1, 3, 5, 7, 9, 11, 15, 21, 31]:
+    modelo = make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=k))
+    score = cross_val_score(modelo, X_train, Y_train, cv=5).mean()
+    print(Fore.BLUE + f"k = {k}: acuracia media = {score:.4f}")
+
+    if score > melhor_score:
+        melhor_score = score
+        melhor_k = k
+
+print(Fore.GREEN + f"Melhor k: {melhor_k} (acuracia media = {melhor_score:.4f})")
+
+linha("-=", 40)
+
+#treinando o KNN final com o melhor k e avaliando no conjunto de teste
+
+knn = KNeighborsClassifier(n_neighbors=melhor_k)
+knn.fit(X_train_scaled, Y_train) #treina com os dados de treino normalizados
+
+Y_pred = knn.predict(X_test_scaled) #preve o genero das musicas de teste
+
+print(Fore.GREEN + f"Acuracia no teste: {accuracy_score(Y_test, Y_pred):.4f}")
+
+linha("-=", 40)
+
+print(Fore.BLUE + "Relatorio por genero:")
+print(classification_report(Y_test, Y_pred, zero_division=0))
+
+linha("-=", 40)
+
+print(Fore.BLUE + "Ordem dos generos na matriz:")
+print(list(knn.classes_))
+print(Fore.BLUE + "Matriz de confusao (linhas = genero real, colunas = genero previsto):")
+print(confusion_matrix(Y_test, Y_pred, labels=knn.classes_))
