@@ -109,8 +109,6 @@ linha("-=", 40)
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42, stratify=Y) #dividindo em treino e teste
 
 print(Fore.BLUE + "Treino: ", X_train.shape) # printa o tamanho do dataset de treino
-
-print(Fore.BLUE + "Teste: ", X_test.shape) # printa o tamanho do dataset de teste
 print(Fore.BLUE + "Teste: ", X_test.shape) # printa o tamanho do dataset de teste
 
 linha("-=", 40)
