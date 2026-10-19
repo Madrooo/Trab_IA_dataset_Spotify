@@ -3,6 +3,10 @@ from biblioteca_facilitar.linha import linha
 import colorama
 from colorama import Fore, init
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import make_pipeline
+#from sklearn.model_selection import cross_val_score
 
 init(autoreset=True)
 
@@ -102,7 +106,23 @@ linha("-=", 40)
 
 #dividindo em treino por volta de 80% e teste por volta de 20%
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42, stratify=Y) #dividindo em treino e teste
 
 print(Fore.BLUE + "Treino: ", X_train.shape) # printa o tamanho do dataset de treino
 print(Fore.BLUE + "Teste: ", X_test.shape) # printa o tamanho do dataset de teste
+
+linha("-=", 40)
+
+scaler = StandardScaler() #instanciando o StandardScaler
+
+X_train_scaled = scaler.fit_transform(X_train) #ajustando e transformando os dados de treino
+X_test_scaled = scaler.transform(X_test) #transformando os dados de teste
+
+print(Fore.BLUE + "Media das colunas do treino apos normalizar (precisa ser proximo de 0):")
+print(X_train_scaled.mean(axis=0)) # printa a media das colunas do treino apos normalizar
+
+print(Fore.BLUE + "Desvio padrao das colunas do treino apos normalizar (precisa ser proximo de 1):")
+print(X_train_scaled.std(axis=0)) # printa o desvio padrao das colunas do treino apos normalizarg
+
+linha("-=", 40)
+
