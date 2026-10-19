@@ -13,7 +13,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import (
     accuracy_score, precision_score,
-    recall_score, f1_score, 
+    recall_score, f1_score,
     confusion_matrix, classification_report
 )
 
@@ -33,8 +33,6 @@ print("\nQuantidade por genero: \n", df["track_genre"].value_counts())
 # 2. PRÉ-PROCESSAMENTO
 ##############################################################################
 
-label_encoder = LabelEncoder()
-
 colunas = [
     "duration_ms",
     "danceability",
@@ -51,10 +49,28 @@ colunas = [
     "time_signature"
 ]
 
+
+generos_selecionados = [
+    "pop", "hip-hop", "classical", "jazz", "country",
+    "reggae", "blues", "forro","metal", "techno"
+]
+
+# Filtrar somente as músicas dos gêneros escolhidos
+df_filtrado = df[df["track_genre"].isin(generos_selecionados)].copy()
+
+# Separar as características e os gêneros correspondentes
+colum_genre = df_filtrado["track_genre"].copy()
+
+# Converter os gêneros para números
+label_encoder = LabelEncoder()
+
 # Valores de entrada:
-X = df[colunas].copy() #Features
-colum_genre = df["track_genre"].copy()
-y = label_encoder.fit_transform(colum_genre) #Coluna com saída esperada
+X = df_filtrado[colunas].copy()  # Features
+y = label_encoder.fit_transform(colum_genre)  # Coluna com saída esperada
+
+print("Dimensões de X:", X.shape)
+print("Quantidade de gêneros:", len(label_encoder.classes_))
+print("Gêneros encontrados:", list(label_encoder.classes_))
 
 
 # Copiando dados e salvando em um arquivo .csv
@@ -116,21 +132,21 @@ print("\n5. Avaliacao dos resultados")
 y_predict = modelo.predict(X_test)
 print("Acurácia: ", round(accuracy_score(y_test, y_predict), 4))
 
-print("Precisão com igualdade de pesos: ", 
-    round(precision_score(
-        y_test, y_predict, average="macro", zero_division=0), 4
-    ))
+print("Precisão com igualdade de pesos: ",
+      round(precision_score(
+          y_test, y_predict, average="macro", zero_division=0), 4
+      ))
 
 
-print("Recall com igualdade de pesos", 
-    round(recall_score(
-        y_test, y_predict, average="macro", zero_division=0), 4
-    ))
+print("Recall com igualdade de pesos",
+      round(recall_score(
+          y_test, y_predict, average="macro", zero_division=0), 4
+      ))
 
-print("F1_score com igualdade de pesos:", 
-    round(f1_score(
-        y_test, y_predict, average="macro", zero_division=0), 4
-    ))
+print("F1_score com igualdade de pesos:",
+      round(f1_score(
+          y_test, y_predict, average="macro", zero_division=0), 4
+      ))
 
 classes = modelo.named_steps["mlp"].classes_
 
@@ -150,9 +166,8 @@ print(classification_report(
 ##############################################################################
 
 df_resultados = pd.DataFrame({
-    "genero_real": label_encoder.inverse_transform(y_test), 
+    "genero_real": label_encoder.inverse_transform(y_test),
     "genero_previsto": label_encoder.inverse_transform(y_predict)
 })
 
 df_resultados.to_csv("spotify_mlp_resultados.csv", index=False)
-
