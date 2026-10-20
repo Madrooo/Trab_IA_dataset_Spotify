@@ -156,6 +156,9 @@ Y_pred = knn.predict(X_test_scaled) #preve o genero das musicas de teste
 
 print(Fore.GREEN + f"Acuracia no teste: {accuracy_score(Y_test, Y_pred):.4f}")
 
+acertos = (Y_pred == Y_test.values).sum()
+print(Fore.BLUE + f"Acertos: {acertos} de {len(Y_test)}")
+
 linha("-=", 40)
 
 print(Fore.BLUE + "Relatorio por genero:")
