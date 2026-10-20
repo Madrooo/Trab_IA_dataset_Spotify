@@ -4,10 +4,9 @@ Trabalho de Machine Learning usando o dataset de faixas do Spotify. O objetivo �
 
 > **Status:** análise dos dados, limpeza e KNN concluídos. Os resultados do MLP são provisórios: o script ainda precisa ser alinhado com o KNN. Os campos marcados com `TODO` ainda precisam ser preenchidos.
 
-**Autores:** Matheus Oliveira Silva e Lucas (TODO: sobrenome)
+**Autores:** Matheus Oliveira Silva e Lucas Oliveira
 **Instituição:** IFCE — Ciência da Computação
-**Disciplina:** TODO
-**Professor(a):** TODO
+**Disciplina:** Inteligencia Artificial
 
 ---
 
