@@ -1,7 +1,10 @@
 
 ##############################################################################
+
 # TRABALHO DE MACHINE LEARNING - SPOTIFY TRACKS DATASET
 # Modelo utilizado: MLP (Multilayer Perceptron)
+# SOLUÇÃO DO PROBLEMA: CLASSIFICAÇÃO DE GÊNEROS MUSICAIS
+
 ##############################################################################
 
 import pandas as pd
@@ -198,3 +201,4 @@ df_resultados = pd.DataFrame({
 })
 
 df_resultados.to_csv("spotify_mlp_resultados.csv", index=False)
+
