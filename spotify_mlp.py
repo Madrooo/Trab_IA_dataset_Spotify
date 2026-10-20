@@ -51,8 +51,9 @@ colunas = [
 
 
 generos_selecionados = [
-    "hip-hop", "classical", "jazz", "country",
-    "reggae", "forro", "metal", "techno"
+    "hip-hop", "classical", "jazz",
+    "country", "reggae", "forro",
+    "metal", "techno"
 ]
 
 # Filtrar somente as músicas dos gêneros escolhidos
@@ -97,7 +98,7 @@ print("Teste:", X_test.shape)
 ##############################################################################
 
 # Determina o numero máximo de iterações do MLPClassifier
-max_iter = 100
+max_iter = 200
 
 modelo = Pipeline([
     ("imputador", SimpleImputer(strategy="median")),
@@ -113,13 +114,14 @@ modelo = Pipeline([
         n_iter_no_change=15
     ))
 ])
-
 modelo.fit(X_train, y_train)
 mlp = modelo.named_steps["mlp"]
 
-print("Épocas executadas:", mlp.n_iter_)
-print("Perda final:", round(mlp.loss_, 4))
-print("Melhor pontuação na validação:", round(mlp.best_validation_score_, 4))
+
+
+print("Épocas(Iterações) executadas:", mlp.n_iter_, "vezes de", max_iter)
+print("Perda final:", round(mlp.loss_, 4) * 100, "%")
+print("Melhor pontuação na validação:", round(mlp.best_validation_score_, 4) * 100, "%")
 
 print("\nTreinamento Concluido!")
 
@@ -131,24 +133,24 @@ print("\n5. Avaliação dos resultados")
 
 y_predict = modelo.predict(X_test)
 print("Acurácia: ",
-    round(accuracy_score(y_test, y_predict), 4
-))
+      round(accuracy_score(y_test, y_predict), 4
+) * 100, "%")
 
 print("Precisão com igualdade de pesos: ",
-    round(precision_score(
-        y_test, y_predict, average="macro", zero_division=0), 4
-))
+      round(precision_score(
+          y_test, y_predict, average="macro", zero_division=0) * 100, 4
+      ), "%")
 
 
 print("Recall com igualdade de pesos",
-    round(recall_score(
-        y_test, y_predict, average="macro", zero_division=0), 4
-))
+      round(recall_score(
+          y_test, y_predict, average="macro", zero_division=0) * 100, 4
+      ), "%")
 
 print("F1_score com igualdade de pesos:",
-    round(f1_score(
-        y_test, y_predict, average="macro", zero_division=0), 4
-))
+      round(f1_score(
+          y_test, y_predict, average="macro", zero_division=0) * 100, 4
+      ), "%")
 
 classes = modelo.named_steps["mlp"].classes_
 
