@@ -27,7 +27,7 @@ print("\nPrimeiras linhas: \n", df.head())
 print("\nTipos das colunas: \n", df.dtypes)
 print("\nDimensões da base: ", df.shape)
 print("\nEstatísticas: \n", df.describe())
-print("\nQuantidade por genero: \n", df["track_genre"].value_counts())
+print("\nQuantidade por gênero: \n", df["track_genre"].value_counts())
 
 ##############################################################################
 # 2. PRÉ-PROCESSAMENTO
@@ -57,7 +57,9 @@ generos_selecionados = [
 ]
 
 # Filtrar somente as músicas dos gêneros escolhidos
-df_filtrado = df[df["track_genre"].isin(generos_selecionados)].copy()
+df_filtrado = df[
+    df["track_genre"].isin(generos_selecionados)
+].copy()
 
 # Separar as características e os gêneros correspondentes
 colum_genre = df_filtrado["track_genre"].copy()
@@ -65,11 +67,11 @@ colum_genre = df_filtrado["track_genre"].copy()
 # Converter os gêneros para números
 label_encoder = LabelEncoder()
 
-# Valores de entrada:
+# Valores de entrada: Features (X) e saída esperada: Gênero (y)
 X = df_filtrado[colunas].copy()  # Features
 y = label_encoder.fit_transform(colum_genre)  # Coluna com saída esperada
 
-print("Dimensões de X:", X.shape)
+print("\nDimensões de X:", X.shape)
 print("Quantidade de gêneros:", len(label_encoder.classes_))
 print("Gêneros encontrados:", list(label_encoder.classes_))
 
@@ -90,7 +92,8 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
 
-print("\nTreino:", X_train.shape)
+# Analisando se as dimensões para treino e teste foram dividadas corretamente
+print("\nTreino:", X_train.shape) 
 print("Teste:", X_test.shape)
 
 ##############################################################################
@@ -100,10 +103,15 @@ print("Teste:", X_test.shape)
 # Determina o numero máximo de iterações do MLPClassifier
 max_iter = 200
 
-modelo = Pipeline([
-    ("imputador", SimpleImputer(strategy="median")),
-    ("escalonador", MinMaxScaler()),
-    ("mlp", MLPClassifier(
+# Pipelina para pré-processamento e treinamento do modelo MLP
+# Organiza em uma sequência de etapas que serão executadas automaticamente,
+# sendo um transformador ou um estimador
+
+modelo = Pipeline(
+    [
+    ("imputador", SimpleImputer(strategy="median")), # Substitui valores ausentes pela mediana de cada coluna
+    ("escalonador", MinMaxScaler()),                 # Escalonamento dos dados (normalização) entre 0 e 1
+    ("mlp", MLPClassifier(                           # Treinamento do modelo MLP
         hidden_layer_sizes=(100, 50),
         activation="relu",
         solver="adam",
@@ -112,18 +120,20 @@ modelo = Pipeline([
         early_stopping=True,
         validation_fraction=0.1,
         n_iter_no_change=15
-    ))
-])
+        ))
+    ]
+)
 modelo.fit(X_train, y_train)
 mlp = modelo.named_steps["mlp"]
 
 
-
-print("Épocas(Iterações) executadas:", mlp.n_iter_, "vezes de", max_iter)
+print("Épocas executadas:", mlp.n_iter_, "vezes de", max_iter) # Passagem completa do treinamento
 print("Perda final:", round(mlp.loss_, 4) * 100, "%")
-print("Melhor pontuação na validação:", round(mlp.best_validation_score_, 4) * 100, "%")
+print("Melhor pontuação na validação:", round(
+    mlp.best_validation_score_, 4) * 100, "%")
 
 print("\nTreinamento Concluido!")
+
 
 ##############################################################################
 # 5. AVALIACAO DOS RESULTADOS
@@ -134,7 +144,7 @@ print("\n5. Avaliação dos resultados")
 y_predict = modelo.predict(X_test)
 print("Acurácia: ",
       round(accuracy_score(y_test, y_predict), 4
-) * 100, "%")
+        ) * 100, "%")
 
 print("Precisão com igualdade de pesos: ",
       round(precision_score(
@@ -157,6 +167,7 @@ classes = modelo.named_steps["mlp"].classes_
 print("\nMatriz de confusão:\n")
 print(confusion_matrix(y_test, y_predict, labels=classes))
 
+
 print("\n\nRESULTADOS POR GÊNERO!")
 print(classification_report(
     y_test,
@@ -165,9 +176,15 @@ print(classification_report(
     zero_division=0
 ))
 
+
 ##############################################################################
 # SALVANDO AS PREVISOES EM UM ARQUIVO .csv
 ##############################################################################
+
+# Criando um DataFrame com os resultados com o genêro real e o gênero previsto
+# Antes disto, é necessário inverter a transformação usando LabelEncoder 
+# para que os gêneros voltem a ser Strings e seja possível ler os resultados 
+# dentro do arquivo .csv
 
 df_resultados = pd.DataFrame({
     "genero_real": label_encoder.inverse_transform(y_test),
