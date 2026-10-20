@@ -2,7 +2,7 @@
 
 Trabalho de Machine Learning usando o dataset de faixas do Spotify. O objetivo é prever o **gênero de uma música** a partir de suas características de áudio, comparando dois modelos: **KNN** e **MLP**.
 
-> **Status:** análise dos dados, limpeza e KNN concluídos. MLP em ajuste para usar os mesmos dados do KNN. Os campos marcados com `TODO` ainda precisam ser preenchidos.
+> **Status:** análise dos dados, limpeza e KNN concluídos. Os resultados do MLP são provisórios: o script ainda precisa ser alinhado com o KNN. Os campos marcados com `TODO` ainda precisam ser preenchidos.
 
 **Autores:** Matheus Oliveira Silva e Lucas (TODO: sobrenome)
 **Instituição:** IFCE — Ciência da Computação
@@ -84,16 +84,17 @@ Resultado: **5.915 músicas**.
 
 ## 5. Modelos
 
-### KNN
+### KNN (`machine-learning-spotify.py`)
 
 - O melhor `k` foi escolhido por validação cruzada (5 partes) apenas no treino, testando `k` = 1, 3, 5, 7, 9, 11, 15, 21 e 31
 - **Melhor `k`:** 11 (acurácia média na validação: 0,6513)
 
-### MLP
+### MLP (`spotify_mlp.py`)
 
 - Rede com duas camadas ocultas `(100, 50)`, ativação `relu`, otimizador `adam` e parada antecipada
-- Deve usar os mesmos dados, as mesmas 9 colunas, a mesma divisão e a mesma normalização do KNN
-- TODO: confirmar a configuração final
+- **Versão atual do script:** usa 13 atributos (os 9 acima mais `duration_ms`, `key`, `mode` e `time_signature`), substitui valores ausentes pela mediana e escala os dados entre 0 e 1 com `MinMaxScaler`. Ainda não aplica a limpeza de duplicatas do KNN
+- **Objetivo:** usar os mesmos dados, as mesmas 9 colunas, a mesma divisão e a mesma normalização do KNN
+- TODO: alinhar o script com o KNN e confirmar a configuração final
 
 ## 6. Métricas de avaliação
 
@@ -103,39 +104,71 @@ Resultado: **5.915 músicas**.
 
 ## 7. Resultados
 
-| Modelo | Acurácia no teste | F1 macro |
-|---|---|---|
-| KNN (`k = 11`) | 0,6391 | TODO |
-| MLP | TODO | TODO |
+Os dois modelos foram avaliados nas mesmas 1.183 músicas de teste.
 
-- Gêneros que o modelo acerta mais: TODO
-- Gêneros que o modelo acerta menos: TODO
-- Principais confusões da matriz: TODO
+| Modelo | Acurácia | Precisão macro | Recall macro | F1 macro |
+|---|---|---|---|---|
+| KNN (`k = 11`) | 0,6391 | 0,6086 | 0,5970 | 0,5964 |
+| MLP (alinhado com o KNN)* | 0,6855 | 0,6505 | 0,6449 | 0,6447 |
+
+\* TODO: confirmar rodando o `spotify_mlp.py` já ajustado (mesma limpeza, 9 colunas e `StandardScaler`). Os valores do MLP vêm de uma execução com essa configuração. A versão atual do script, sem a limpeza, usa outros dados (8.000 músicas e teste com 1.600) e não é comparável com o KNN (acurácia de 0,6538 nessa versão).
+
+### F1 por gênero
+
+| Gênero | KNN | MLP |
+|---|---|---|
+| classical | 0,81 | 0,84 |
+| techno | 0,78 | 0,81 |
+| forro | 0,76 | 0,79 |
+| metal | 0,71 | 0,79 |
+| hip-hop | 0,48 | 0,52 |
+| country | 0,48 | 0,49 |
+| jazz | 0,37 | 0,50 |
+| reggae | 0,37 | 0,42 |
+
+### Principais confusões do KNN
+
+- reggae previsto como hip-hop: 40 das 112 músicas de reggae
+- hip-hop previsto como reggae: 27 das 147
+- jazz previsto como classical (18) e como country (18), de 94
+- metal previsto como country: 20 das 163
 
 ## 8. Conclusões
 
-- Qual modelo teve o melhor desempenho: TODO
-- Quais gêneros são mais fáceis e mais difíceis de separar, e por quê: TODO
-- Limitações: as características de áudio sozinhas não bastam para separar gêneros parecidos. TODO: complementar
-- Possíveis melhorias: TODO
+- **Desempenho:** nos dados alinhados, o MLP (68,6%) ficou acima do KNN (63,9%) em acurácia e em F1 macro (0,645 contra 0,596). A diferença é de poucos pontos e o MLP varia entre execuções. TODO: confirmar rodando com mais de uma semente
+- **Gêneros mais fáceis:** classical, techno, forro e metal têm perfis de áudio próprios, e os dois modelos os acertam com F1 entre 0,71 e 0,84
+- **Gêneros mais difíceis:** reggae, jazz, hip-hop e country. O reggae se confunde com o hip-hop (e o contrário), e o jazz com o classical e o country, o que é coerente com a proximidade das características de áudio
+- **Limitações:** as 9 características de áudio sozinhas não separam bem gêneros parecidos. A lista foi escolhida com gêneros distintos, e com gêneros mais próximos (como pop e indie) a acurácia cai. TODO: complementar
+- **Possíveis melhorias:** TODO (ideias: testar atributos extras como `key`, `mode` e `duration_ms`, ajustar a arquitetura do MLP por validação cruzada e agrupar gêneros em famílias)
 
 ## 9. Estrutura do projeto
 
 ```
 Trab_IA_dataset_Spotify/
+├── README.md
 ├── dataset.csv
-├── biblioteca_facilitar/        # módulo próprio (função linha)
 ├── machine-learning-spotify.py  # KNN
-├── TODO.py                      # MLP (confirmar o nome)
-└── README.md
+├── spotify_mlp.py               # MLP
+└── biblioteca_facilitar/        # módulo próprio
+    └── linha.py                 # função linha, usada pelo KNN
 ```
+
+Os arquivos `spotify_mlp_dados.csv` e `spotify_mlp_resultados.csv` são criados ao executar o MLP e não precisam existir antes.
 
 ## 10. Como executar
 
 ```
 python -m pip install pandas scikit-learn colorama
 python machine-learning-spotify.py
-python spotify_mip.py
+python spotify_mlp.py
 ```
 
-A pasta `biblioteca_facilitar` precisa estar na mesma pasta do script. TODO: acrescentar o comando do MLP.
+- A pasta `biblioteca_facilitar` precisa estar na mesma pasta dos scripts (o KNN importa a função `linha` dela)
+- O `dataset.csv` precisa estar na raiz do projeto
+- O MLP cria ou sobrescreve, na pasta atual:
+  - `spotify_mlp_dados.csv`: atributos utilizados e gênero codificado em números
+  - `spotify_mlp_resultados.csv`: gênero real e gênero previsto de cada música do teste
+
+## 11. Referências
+
+- Documentação do scikit-learn
