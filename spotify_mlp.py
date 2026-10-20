@@ -93,7 +93,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # Analisando se as dimensões para treino e teste foram dividadas corretamente
-print("\nTreino:", X_train.shape) 
+print("\nTreino:", X_train.shape)
 print("Teste:", X_test.shape)
 
 ##############################################################################
@@ -109,30 +109,33 @@ max_iter = 200
 
 modelo = Pipeline(
     [
-    ("imputador", SimpleImputer(strategy="median")), # Substitui valores ausentes pela mediana de cada coluna
-    ("escalonador", MinMaxScaler()),                 # Escalonamento dos dados (normalização) entre 0 e 1
-    ("mlp", MLPClassifier(                           # Treinamento do modelo MLP
-        hidden_layer_sizes=(100, 50),
-        activation="relu",
-        solver="adam",
-        max_iter=max_iter,
-        random_state=42,
-        early_stopping=True,
-        validation_fraction=0.1,
-        n_iter_no_change=15
+        # Substitui valores ausentes pela mediana de cada coluna
+        ("imputador", SimpleImputer(strategy="median")),
+        # Escalonamento dos dados (normalização) entre 0 e 1
+        ("escalonador", MinMaxScaler()),
+        ("mlp", MLPClassifier(                           # Treinamento do modelo MLP
+            hidden_layer_sizes=(100, 50),                # Duas camadas ocultas de neurônios
+            activation="relu",                           # Função de ativação 
+            solver="adam",                               # Algoritmo de otimização (Ajusta os pesos da rede neural)
+            max_iter=max_iter,                           # Máximo de iterações para o treinamento
+            random_state=42,                             # Aleatoriedade para reprodutibilidade
+            early_stopping=True,                         # Parada antecipada (se não houver melhora na validação)
+            validation_fraction=0.1,                     # Porcentagem de dados para validação durante o treinamento
+            n_iter_no_change=15                          # Número de iterações sem melhoria toleradas 
         ))
     ]
 )
-modelo.fit(X_train, y_train)
-mlp = modelo.named_steps["mlp"]
+modelo.fit(X_train, y_train) # Treinamento do modelo MLP (dados de treino)
+mlp = modelo.named_steps["mlp"] # Acessando o modelo MLP no pipeline para obter informações sobre o treinamento
 
 
-print("Épocas executadas:", mlp.n_iter_, "vezes de", max_iter) # Passagem completa do treinamento
-print("Perda final:", round(mlp.loss_, 4) * 100, "%")
-print("Melhor pontuação na validação:", round(
-    mlp.best_validation_score_, 4) * 100, "%")
+# Consultando os dados do treinamento do modelo MLP
+print("Épocas executadas:", mlp.n_iter_, "vezes de", max_iter)  # Passagem completa do treinamento (n°_iterações)
+print("Perda final:", round(mlp.loss_, 4) * 100, "%") #Função de perda final
+print("Melhor pontuação na validação:", round(mlp.best_validation_score_, 4) * 100, "%")
 
-print("\nTreinamento Concluido!")
+
+print("\nTREINAMENTO DO MODELO MLP CONCLUIDO!")
 
 
 ##############################################################################
@@ -141,38 +144,41 @@ print("\nTreinamento Concluido!")
 
 print("\n5. Avaliação dos resultados")
 
-y_predict = modelo.predict(X_test)
-print("Acurácia: ",
-      round(accuracy_score(y_test, y_predict), 4
-        ) * 100, "%")
 
-print("Precisão com igualdade de pesos: ",
+y_predict = modelo.predict(X_test)
+
+print("Acurácia: ", round(accuracy_score(y_test, y_predict) * 100, 4), "%")
+
+print("Precisão com igualdade de pesos: ", # Confiabilidade do modelo em classificar corretamento os gêneros
       round(precision_score(
           y_test, y_predict, average="macro", zero_division=0) * 100, 4
       ), "%")
 
 
-print("Recall com igualdade de pesos",
+print("Recall com igualdade de pesos", # Capacidade do modelo em identificar corretamente os gêneros
       round(recall_score(
           y_test, y_predict, average="macro", zero_division=0) * 100, 4
       ), "%")
 
-print("F1_score com igualdade de pesos:",
+print("F1_score com igualdade de pesos:", # Combinação da precisão e recall (faz uma média harmônica entre eles)
       round(f1_score(
           y_test, y_predict, average="macro", zero_division=0) * 100, 4
       ), "%")
 
-classes = modelo.named_steps["mlp"].classes_
 
+
+classes = modelo.named_steps["mlp"].classes_ # Obtendo os gêneros previstos pelo modelo MLP
+# Invertendo a transformação usando LabelEncoder 
 print("\nMatriz de confusão:\n")
 print(confusion_matrix(y_test, y_predict, labels=classes))
 
-
+# Relatório de classificação dos resultados do modelo MLP
 print("\n\nRESULTADOS POR GÊNERO!")
 print(classification_report(
     y_test,
     y_predict,
     labels=classes,
+    target_names=label_encoder.inverse_transform(classes),
     zero_division=0
 ))
 
@@ -181,9 +187,9 @@ print(classification_report(
 # SALVANDO AS PREVISOES EM UM ARQUIVO .csv
 ##############################################################################
 
-# Criando um DataFrame com os resultados com o genêro real e o gênero previsto
-# Antes disto, é necessário inverter a transformação usando LabelEncoder 
-# para que os gêneros voltem a ser Strings e seja possível ler os resultados 
+# Criando um DataFrame com os resultados com o genêro real e o gênero previsto.
+# Antes disto, é necessário inverter a transformação usando LabelEncoder,
+# para que os gêneros voltem a ser Strings e seja possível ler os resultados,
 # dentro do arquivo .csv
 
 df_resultados = pd.DataFrame({
