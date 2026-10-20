@@ -1,117 +1,63 @@
-# Classificador de gêneros musicais com KNN
+# Classificação de gêneros musicais com dados do Spotify
 
-Projeto em Python para classificar gêneros musicais usando dados do Spotify e o algoritmo K-Nearest Neighbors (KNN).
-
-## Visão geral
-
-Este projeto lê um dataset de músicas, realiza limpeza e pré-processamento dos dados, seleciona um subconjunto de gêneros mais representativos e treina um modelo de classificação para prever o gênero musical a partir de atributos de áudio.
-
-O script principal é:
-
-- `machine-learning-spotify.py`
-
-## Objetivo
-
-Identificar o gênero de uma faixa musical com base em características como:
-
-- `danceability`
-- `energy`
-- `loudness`
-- `speechiness`
-- `acousticness`
-- `instrumentalness`
-- `liveness`
-- `valence`
-- `tempo`
+Projeto de machine learning que usa atributos de áudio do dataset do Spotify para classificar gêneros musicais. O repositório contém duas abordagens: K-Nearest Neighbors (KNN) e uma rede neural Multilayer Perceptron (MLP).
 
 ## Dataset
 
-O projeto usa o arquivo:
-
-- `dataset.csv`
-
-Esse dataset contém uma coleção de faixas com informações como identificação da música, artista, álbum, atributos de áudio e o gênero (`track_genre`).
-
-## Fluxo do projeto
-
-O script executa as seguintes etapas:
-
-1. Carrega o dataset
-2. Explora informações básicas do arquivo
-3. Verifica valores nulos e duplicados
-4. Analisa gêneros disponíveis no conjunto de dados
-5. Filtra um subconjunto de gêneros relevantes
-6. Limpa dados inconsistentes
-7. Remove colunas pouco úteis para a classificação
-8. Separa variáveis de entrada e alvo
-9. Divide os dados em treino e teste
-10. Normaliza as features
-11. Testa diferentes valores de `k` com validação cruzada
-12. Escolhe o melhor valor de `k`
-13. Treina o modelo KNN final
-14. Avalia a acurácia e o relatório de classificação
-15. Exibe a matriz de confusão
-
-## Tecnologias utilizadas
-
-- Python
-- Pandas
-- Scikit-learn
-- Colorama
-- Biblioteca local `biblioteca_facilitar`
+Os scripts leem `dataset.csv` na raiz do projeto. O arquivo deve conter a coluna `track_genre` e os atributos de áudio usados pelos modelos. O dataset não é gerado pelos scripts.
 
 ## Requisitos
 
-Você precisará ter o Python instalado e as dependências do projeto disponíveis.
+- Python 3
+- pandas
+- scikit-learn
+- colorama (usado pelo script KNN)
 
-### Instalação
+Instale as dependências com:
 
 ```bash
 pip install pandas scikit-learn colorama
 ```
 
-## Como executar
+O script KNN também importa o módulo local `biblioteca_facilitar`, que já faz parte deste repositório.
 
-Na raiz do projeto, execute:
+## Modelos
+
+### KNN — `machine-learning-spotify.py`
+
+Para executar:
 
 ```bash
 python machine-learning-spotify.py
 ```
 
-O script imprime no terminal informações sobre o dataset, limpeza, treino e avaliação do modelo.
+O script explora o dataset, seleciona os gêneros `hip-hop`, `classical`, `jazz`, `country`, `reggae`, `forro`, `metal` e `techno`, remove registros duplicados ou inválidos e treina um classificador KNN. O valor de `k` é escolhido por validação cruzada no conjunto de treino. Ao final, o programa imprime métricas, relatório por gênero e matriz de confusão no terminal.
 
-## Estrutura do projeto
+### MLP — `spotify_mlp.py`
+
+Para executar:
+
+```bash
+python spotify_mlp.py
+```
+
+O script usa os mesmos oito gêneros e 13 atributos de áudio: duração, dançabilidade, energia, tonalidade, volume, modo, fala, acústica, instrumentalidade, vivacidade, valência, andamento e fórmula de compasso. Os dados são divididos em treino e teste de forma estratificada. Um pipeline substitui valores ausentes pela mediana, escala os atributos entre 0 e 1 e treina uma rede MLP com duas camadas ocultas.
+
+O script imprime métricas de avaliação, matriz de confusão e relatório de classificação por gênero. Também cria ou sobrescreve na pasta atual:
+
+- `spotify_mlp_dados.csv`: atributos utilizados e rótulo do gênero codificado numericamente.
+- `spotify_mlp_resultados.csv`: gênero real e gênero previsto para cada registro do conjunto de teste.
+
+## Estrutura
 
 ```text
 Trab_IA_dataset_Spotify/
 ├── README.md
 ├── dataset.csv
 ├── machine-learning-spotify.py
-├── biblioteca_facilitar/
-│   └── linha.py
-└── state/
+├── spotify_mlp.py
+└── biblioteca_facilitar/
+    └── linha.py
 ```
 
-## Resultado esperado
-
-Ao final da execução, o programa mostra:
-
-- contagem de músicas após limpeza
-- quantidade por gênero
-- métricas de avaliação do modelo
-- melhor valor de `k` encontrado
-- acurácia no conjunto de teste
-- relatório por gênero
-- matriz de confusão
-
-## Observações
-
-O projeto foi pensado como uma análise prática de classificação multiclasse em machine learning, com foco na comparação de desempenho entre diferentes valores de vizinhos para o algoritmo KNN.
-
-## Próximos passos possíveis
-
-- testar outros modelos, como Random Forest ou SVM
-- comparar com redes neurais
-- explorar melhor seleção de gêneros
-- melhorar a análise de métricas e visualização dos resultados
-- exportar os resultados em gráficos e relatórios
+Os arquivos CSV de saída do MLP são criados ao executar o script e não precisam estar presentes antes da execução.
