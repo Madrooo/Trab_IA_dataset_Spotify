@@ -51,8 +51,8 @@ colunas = [
 
 
 generos_selecionados = [
-    "pop", "hip-hop", "classical", "jazz", "country",
-    "reggae", "blues", "forro","metal", "techno"
+    "hip-hop", "classical", "jazz", "country",
+    "reggae", "forro", "metal", "techno"
 ]
 
 # Filtrar somente as músicas dos gêneros escolhidos
@@ -127,26 +127,28 @@ print("\nTreinamento Concluido!")
 # 5. AVALIACAO DOS RESULTADOS
 ##############################################################################
 
-print("\n5. Avaliacao dos resultados")
+print("\n5. Avaliação dos resultados")
 
 y_predict = modelo.predict(X_test)
-print("Acurácia: ", round(accuracy_score(y_test, y_predict), 4))
+print("Acurácia: ",
+    round(accuracy_score(y_test, y_predict), 4
+))
 
 print("Precisão com igualdade de pesos: ",
-      round(precision_score(
-          y_test, y_predict, average="macro", zero_division=0), 4
-      ))
+    round(precision_score(
+        y_test, y_predict, average="macro", zero_division=0), 4
+))
 
 
 print("Recall com igualdade de pesos",
-      round(recall_score(
-          y_test, y_predict, average="macro", zero_division=0), 4
-      ))
+    round(recall_score(
+        y_test, y_predict, average="macro", zero_division=0), 4
+))
 
 print("F1_score com igualdade de pesos:",
-      round(f1_score(
-          y_test, y_predict, average="macro", zero_division=0), 4
-      ))
+    round(f1_score(
+        y_test, y_predict, average="macro", zero_division=0), 4
+))
 
 classes = modelo.named_steps["mlp"].classes_
 
