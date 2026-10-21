@@ -37,19 +37,15 @@ print("\nQuantidade por gênero: \n", df["track_genre"].value_counts())
 ##############################################################################
 
 colunas = [
-    "duration_ms",
     "danceability",
     "energy",
-    "key",
     "loudness",
-    "mode",
     "speechiness",
     "acousticness",
     "instrumentalness",
     "liveness",
     "valence",
-    "tempo",
-    "time_signature"
+    "tempo"
 ]
 
 
@@ -60,9 +56,20 @@ generos_selecionados = [
 ]
 
 # Filtrar somente as músicas dos gêneros escolhidos
+
 df_filtrado = df[
     df["track_genre"].isin(generos_selecionados)
 ].copy()
+
+# Limpar os dados ausentes (NaN) das colunas selecionadas
+df_filtrado = df_filtrado.dropna()
+df_filtrado = df_filtrado.drop_duplicates(subset=["track_id", "track_genre"])
+df_filtrado = df_filtrado[df_filtrado["track_id"].duplicated() == False]
+df_filtrado = df_filtrado[df_filtrado["tempo"] > 0]
+df_filtrado = df_filtrado.drop_duplicates(subset=["track_name", "artists"])
+df_filtrado = df_filtrado.drop_duplicates(subset=colunas)
+df_filtrado = df_filtrado.reset_index(
+    drop=True)  # Resetando o índice do DataFrame
 
 # Separar as características e os gêneros correspondentes
 colum_genre = df_filtrado["track_genre"].copy()
@@ -117,25 +124,34 @@ modelo = Pipeline(
         # Escalonamento dos dados (normalização) entre 0 e 1
         ("escalonador", MinMaxScaler()),
         ("mlp", MLPClassifier(                           # Treinamento do modelo MLP
-            hidden_layer_sizes=(100, 50),                # Duas camadas ocultas de neurônios
-            activation="relu",                           # Função de ativação 
-            solver="adam",                               # Algoritmo de otimização (Ajusta os pesos da rede neural)
-            max_iter=max_iter,                           # Máximo de iterações para o treinamento
+            # Duas camadas ocultas de neurônios
+            hidden_layer_sizes=(100, 50),
+            activation="relu",                           # Função de ativação
+            # Algoritmo de otimização (Ajusta os pesos da rede neural)
+            solver="adam",
+            # Máximo de iterações para o treinamento
+            max_iter=max_iter,
             random_state=42,                             # Aleatoriedade para reprodutibilidade
-            early_stopping=True,                         # Parada antecipada (se não houver melhora na validação)
-            validation_fraction=0.1,                     # Porcentagem de dados para validação durante o treinamento
-            n_iter_no_change=15                          # Número de iterações sem melhoria toleradas 
+            # Parada antecipada (se não houver melhora na validação)
+            early_stopping=True,
+            # Porcentagem de dados para validação durante o treinamento
+            validation_fraction=0.1,
+            # Número de iterações sem melhoria toleradas
+            n_iter_no_change=15
         ))
     ]
 )
-modelo.fit(X_train, y_train) # Treinamento do modelo MLP (dados de treino)
-mlp = modelo.named_steps["mlp"] # Acessando o modelo MLP no pipeline para obter informações sobre o treinamento
+modelo.fit(X_train, y_train)  # Treinamento do modelo MLP (dados de treino)
+# Acessando o modelo MLP no pipeline para obter informações sobre o treinamento
+mlp = modelo.named_steps["mlp"]
 
 
 # Consultando os dados do treinamento do modelo MLP
-print("Épocas executadas:", mlp.n_iter_, "vezes de", max_iter)  # Passagem completa do treinamento (n°_iterações)
-print("Perda final:", round(mlp.loss_, 4) * 100, "%") #Função de perda final
-print("Melhor pontuação na validação:", round(mlp.best_validation_score_, 4) * 100, "%")
+# Passagem completa do treinamento (n°_iterações)
+print("Épocas executadas:", mlp.n_iter_, "de", max_iter)
+print("Perda final:", round(mlp.loss_, 4))  # Função de perda final
+print("Melhor pontuação na validação:", round(
+    mlp.best_validation_score_, 4) * 100, "%")
 
 
 print("\nTREINAMENTO DO MODELO MLP CONCLUIDO!")
@@ -152,26 +168,26 @@ y_predict = modelo.predict(X_test)
 
 print("Acurácia: ", round(accuracy_score(y_test, y_predict) * 100, 4), "%")
 
-print("Precisão com igualdade de pesos: ", # Confiabilidade do modelo em classificar corretamento os gêneros
+print("Precisão com igualdade de pesos: ",  # Confiabilidade do modelo em classificar corretamento os gêneros
       round(precision_score(
           y_test, y_predict, average="macro", zero_division=0) * 100, 4
       ), "%")
 
 
-print("Recall com igualdade de pesos", # Capacidade do modelo em identificar corretamente os gêneros
+print("Recall com igualdade de pesos",  # Capacidade do modelo em identificar corretamente os gêneros
       round(recall_score(
           y_test, y_predict, average="macro", zero_division=0) * 100, 4
       ), "%")
 
-print("F1_score com igualdade de pesos:", # Combinação da precisão e recall (faz uma média harmônica entre eles)
+print("F1_score com igualdade de pesos:",  # Combinação da precisão e recall (faz uma média harmônica entre eles)
       round(f1_score(
           y_test, y_predict, average="macro", zero_division=0) * 100, 4
       ), "%")
 
 
-
-classes = modelo.named_steps["mlp"].classes_ # Obtendo os gêneros previstos pelo modelo MLP
-# Invertendo a transformação usando LabelEncoder 
+# Obtendo os gêneros previstos pelo modelo MLP
+classes = modelo.named_steps["mlp"].classes_
+# Invertendo a transformação usando LabelEncoder
 print("\nMatriz de confusão:\n")
 print(confusion_matrix(y_test, y_predict, labels=classes))
 
@@ -201,4 +217,3 @@ df_resultados = pd.DataFrame({
 })
 
 df_resultados.to_csv("spotify_mlp_resultados.csv", index=False)
-
